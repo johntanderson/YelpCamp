@@ -20,13 +20,17 @@ router.post('/', isLoggedIn, (req, res) => {
 	let newCampground = new Campground({
 		name: req.body.name,
 		image: req.body.image,
-		description: req.body.description
+		description: req.body.description,
+		author: {
+			id: req.user._id,
+			username: req.user.username
+		}
 	});
 	newCampground.save((err, campground) => {
 		if (err) {
 			console.log(err);
 		} else {
-			console.log('New campground created!');
+			console.log(campground);
 			res.redirect('/campgrounds');
 		}
 	});
