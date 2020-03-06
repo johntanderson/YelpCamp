@@ -9,6 +9,7 @@ const express = require('express'),
 	LocalStrategy = require('passport-local'),
 	Campground = require('./models/campground'),
 	Comment = require('./models/comment'),
+	methodOverride = require('method-override'),
 	User = require('./models/user');
 
 const campgroundRoutes = require('./routes/campgrounds'),
@@ -22,6 +23,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, '/public')));
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
 
 // =============================
 // MONGOOSE SETUP

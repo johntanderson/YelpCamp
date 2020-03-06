@@ -5,6 +5,7 @@ const Campground = require('../models/campground');
 // GET- get all campgrounds
 router.get('/', (req, res) => {
 	// Find campgrounds in mongodb and render all of them
+	console.log("Hello");
 	Campground.find({}, (err, allCampgrounds) => {
 		if (err) {
 			console.log(err);
@@ -53,6 +54,31 @@ router.get('/:id', (req, res) => {
 				res.render('./campgrounds/show', { campground: foundCampground});
 			}
 		});
+});
+
+// EDIT CAMPGROUND ROUTE
+router.get('/:id/edit',(req,res)=>{
+	Campground.findById(req.params.id,(err,foundCampground)=>{
+		if(err){
+			console.log(err);
+			res.redirect('/');
+		} else {
+			res.render('campgrounds/edit', {campground: foundCampground});
+		}
+	});
+	
+})
+
+// UPDATE CAMPGROUND ROUTE
+router.put("/:id", (req,res)=>{
+	Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err,updatedCampground)=>{
+		if(err){
+			console.log(err);
+			res.redirect('/');
+		} else{
+			res.redirect('/campgrounds/'+req.params.id);
+		}
+	});
 });
 
 function isLoggedIn(req,res,next){
