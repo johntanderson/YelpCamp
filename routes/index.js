@@ -23,7 +23,7 @@ router.post('/register', (req, res) => {
 	User.register(new User({username: req.body.username}), req.body.password, (err,user)=>{
 		if(err){
 			console.log(err);
-			return res.render("register");
+			return res.redirect("/register");
 		} else {
 			passport.authenticate("local")(req,res, ()=>{
 				res.redirect("/campgrounds");
@@ -40,14 +40,23 @@ router.get("/login", (req,res)=>{
 	}
 });
 
-router.post("/login", passport.authenticate("local", {
-	successRedirect: "/campgrounds",
-	failureRedirect: "/login"
-}), (req,res)=>{
+router.post("/login", (req,res,next)=>{
+	passport.authenticate('local', (err,user,info)=>{
+		if(err) {return next(err); }
+		if(!user) { return res.redirect('/login'); }
+		req.logIn(user, (err)=>{
+			if(err) { return next(err); }
+			let redirectTo = req.session.redirectTo;
+			delete req.session.redirectTo;
+			req.flash("success", "Successfully Logged In!");
+			return res.redirect(redirectTo || '/campgrounds');
+		})
+	})(req,res,next);
 });
 
 router.get("/logout", (req,res)=>{
 	req.logout();
+	req.flash("success", "Successfully Logged Out!");
 	res.redirect("/");
 });
 

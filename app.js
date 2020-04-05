@@ -1,43 +1,42 @@
 // =============================
 // IMPORTED MODULES
 // =============================
-const express = require('express'),
-    path = require('path'),
-	mongoose = require('mongoose'),
-	seedDB = require('./seeds'),
-	passport = require('passport'),
-	LocalStrategy = require('passport-local'),
-	Campground = require('./models/campground'),
-	Comment = require('./models/comment'),
+const express      = require('express'),
+    path           = require('path'),
+	mongoose       = require('mongoose'),
+	flash          = require('connect-flash'),
+	passport       = require('passport'),
+	LocalStrategy  = require('passport-local'),
 	methodOverride = require('method-override'),
-	User = require('./models/user');
+	User           = require('./models/user');
 
 const campgroundRoutes = require('./routes/campgrounds'),
-	commentRoutes = require('./routes/comments'),
-	indexRoutes = require('./routes/index');
-
-// =============================
-// EXPRESS SETUP
-// =============================
-const app = express();
-app.use(express.static(path.join(__dirname, '/public')));
-app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
+	commentRoutes      = require('./routes/comments'),
+	indexRoutes        = require('./routes/index');
 
 // =============================
 // MONGOOSE SETUP
 // =============================
 const options = {
-	useNewUrlParser: true,
-	useFindAndModify: false,
-	useCreateIndex: true,
-	useUnifiedTopology: true
+	useNewUrlParser     : true,
+	useFindAndModify    : false,
+	useCreateIndex      : true,
+	useUnifiedTopology  : true
 };
 mongoose.connect('mongodb://localhost:27017/yelp_camp', options, () => {
 	console.log('Database connected');
 	// seedDB(); // Seed database
 });
+
+// =============================
+// EXPRESS SETUP
+// =============================
+const app = express();
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended   : true }));
+app.use(methodOverride("_method"));
+app.use(flash());
+app.use(express.static(__dirname + "/public"));
 
 // =============================
 // AUTHENTICATION MIDDLEWARE
@@ -56,7 +55,9 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 app.use((req,res,next)=>{
-	res.locals.currentUser = req.user;
+	res.locals.currentUser   = req.user;
+	res.locals.error         = req.flash("error");
+	res.locals.success       = req.flash("success");
 	next();
 });
 
